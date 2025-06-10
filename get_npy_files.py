@@ -83,21 +83,20 @@ def generate_npy(data_dirs, output_dir, chunk_duration, max_time):
 
     for edf_path in edf_files:
         edf_filename = os.path.splitext(os.path.basename(edf_path))[0]
+        subject_id = edf_filename.split('-')[0]
+        output_path = os.path.join(output_dir, f"{subject_id}_epochs.npy")
+
+        if os.path.exists(output_path):
+            print(f"Skipped (already exists): {subject_id}_epochs.npy")
+            continue
+
         if edf_filename in annotation_files_dict:
             try:
-                # Check if the .npy file already exists
-                npy_filename = os.path.join(output_dir, f"{edf_filename}_epochs.npy")
-                if os.path.exists(npy_filename):
-                    print(f"Skipped: {edf_filename}_epochs.npy already exists.")
-                    continue  # Skip this file
-
-                # Process data if .npy file doesn't exist
                 raw_data = get_Raw(edf_path)
                 annotations = get_annotation(annotation_files_dict[edf_filename], edf_filename + ".csv")
                 events = data_preprocess(raw_data, annotations, chunk_duration)
                 epochs = get_epochs(raw_data, events, max_time)
 
-                subject_id = os.path.basename(edf_path).split('-')[0]
                 label = label_dict.get(subject_id, None)
                 epoch_data = epochs.get_data()
 
@@ -110,13 +109,14 @@ def generate_npy(data_dirs, output_dir, chunk_duration, max_time):
                     "label": label
                 } for i, epoch in enumerate(epoch_data)]
 
-                np.save(npy_filename, epochs_list)
-                print(f"Saved: {edf_filename}_epochs.npy")
+                np.save(output_path, epochs_list)
+                print(f"Saved: {subject_id}_epochs.npy")
 
             except Exception as e:
                 print(f"Error processing {edf_path}: {e}")
 
     return edf_files
+
 
 
 data_dirs = [
