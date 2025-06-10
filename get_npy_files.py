@@ -112,7 +112,7 @@ def generate_npy(data_dirs, output_dir, chunk_duration, max_time):
     return edf_files
 
 
-data_dirs = [r"/vol/research/baladat1/data/mnc/cnc",r"/vol/research/baladat1/data/mnc/dhd/training", "r/vol/research/baladat1/data/mnc/dhd/test/controls", "r/vol/research/baladat1/data/mnc/dhd/test/controls/nc-lh", "r/vol/research/baladat1/data/mnc/dhd/test/controls/nc-nh"]
+data_dirs = [r"/vol/research/baladat1/data/mnc/cnc",r"/vol/research/baladat1/data/mnc/dhc/training", "r/vol/research/baladat1/data/mnc/dhc/test/controls", "r/vol/research/baladat1/data/mnc/dhc/test/controls/nc-lh", "r/vol/research/baladat1/data/mnc/dhc/test/controls/nc-nh"]
 output_dir = r"/vol/research/baladat1/narcolepsy_ai/ho00322_lab/5sec_npys"
 edf_files = generate_npy(data_dirs, output_dir,chunk_duration=5, max_time=5.0)
 
