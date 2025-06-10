@@ -69,7 +69,7 @@ def generate_npy(data_dirs, output_dir, chunk_duration, max_time):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
         
-    labels_path = "/Users/estreya/Desktop/labels.xlsx"
+    labels_path = r"/user/HS402/ho00322/labels.xlsx"
     labels_df = pd.read_excel(labels_path, header=None)
     label_dict = dict(zip(labels_df[0].astype(str), labels_df[1]))
 
