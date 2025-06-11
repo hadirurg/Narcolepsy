@@ -83,11 +83,10 @@ def generate_npy(data_dirs, output_dir, chunk_duration, max_time):
 
     for edf_path in edf_files:
         edf_filename = os.path.splitext(os.path.basename(edf_path))[0]
-        subject_id = edf_filename.split('-')[0]
-        output_path = os.path.join(output_dir, f"{subject_id}_epochs.npy")
+        output_path = os.path.join(output_dir, f"{edf_filename}_epochs.npy")
 
         if os.path.exists(output_path):
-            print(f"Skipped (already exists): {subject_id}_epochs.npy")
+            print(f"Skipped (already exists): {edf_filename}_epochs.npy")
             continue
 
         if edf_filename in annotation_files_dict:
@@ -97,6 +96,7 @@ def generate_npy(data_dirs, output_dir, chunk_duration, max_time):
                 events = data_preprocess(raw_data, annotations, chunk_duration)
                 epochs = get_epochs(raw_data, events, max_time)
 
+                subject_id = edf_filename.split('-')[0]
                 label = label_dict.get(subject_id, None)
                 epoch_data = epochs.get_data()
 
@@ -110,12 +110,13 @@ def generate_npy(data_dirs, output_dir, chunk_duration, max_time):
                 } for i, epoch in enumerate(epoch_data)]
 
                 np.save(output_path, epochs_list)
-                print(f"Saved: {subject_id}_epochs.npy")
+                print(f"Saved: {edf_filename}_epochs.npy")
 
             except Exception as e:
                 print(f"Error processing {edf_path}: {e}")
 
     return edf_files
+
 
 
 
