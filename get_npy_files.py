@@ -83,10 +83,11 @@ def generate_npy(data_dirs, output_dir, chunk_duration, max_time):
 
     for edf_path in edf_files:
         edf_filename = os.path.splitext(os.path.basename(edf_path))[0]
-        output_path = os.path.join(output_dir, f"{edf_filename}_epochs.npy")
+        subject_id = os.path.basename(edf_path).split('-')[0]
+        output_path = os.path.join(output_dir, f"{subject_id}_epochs.npy")
 
         if os.path.exists(output_path):
-            print(f"Skipped (already exists): {edf_filename}_epochs.npy")
+            print(f"Skipped (already exists): {subject_id}_epochs.npy")
             continue
 
         if edf_filename in annotation_files_dict:
@@ -96,7 +97,6 @@ def generate_npy(data_dirs, output_dir, chunk_duration, max_time):
                 events = data_preprocess(raw_data, annotations, chunk_duration)
                 epochs = get_epochs(raw_data, events, max_time)
 
-                subject_id = edf_filename.split('-')[0]
                 label = label_dict.get(subject_id, None)
                 epoch_data = epochs.get_data()
 
@@ -110,7 +110,7 @@ def generate_npy(data_dirs, output_dir, chunk_duration, max_time):
                 } for i, epoch in enumerate(epoch_data)]
 
                 np.save(output_path, epochs_list)
-                print(f"Saved: {edf_filename}_epochs.npy")
+                print(f"Saved: {subject_id}_epochs.npy")
 
             except Exception as e:
                 print(f"Error processing {edf_path}: {e}")
@@ -120,12 +120,13 @@ def generate_npy(data_dirs, output_dir, chunk_duration, max_time):
 
 
 
+
 data_dirs = [
     r"/vol/research/baladat1/data/mnc/cnc",
     r"/vol/research/baladat1/data/mnc/dhc/training",
     r"/vol/research/baladat1/data/mnc/dhc/test/controls",  
-    r"/vol/research/baladat1/data/mnc/dhc/test/controls/nc-lh",
-    r"/vol/research/baladat1/data/mnc/dhc/test/controls/nc-nh"
+    r"/vol/research/baladat1/data/mnc/dhc/test/nc-lh",
+    r"/vol/research/baladat1/data/mnc/dhc/test/nc-nh"
 ]
 output_dir = r"/vol/research/baladat1/narcolepsy_ai/ho00322_lab/5sec_npys"
 edf_files = generate_npy(data_dirs, output_dir,chunk_duration=5, max_time=5.0)
