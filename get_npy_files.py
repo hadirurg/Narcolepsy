@@ -59,7 +59,6 @@ def get_epochs(raw_data, events, max_time):
         baseline=None,
         preload=True
     )
-    #epochs.drop_bad(reject=dict(eeg=max_std))
     print(f"Remaining epochs: {len(epochs)}")
     del raw_data
     return epochs
@@ -92,8 +91,11 @@ def generate_npy(data_dirs, output_dir, chunk_duration, max_time):
 
         if edf_filename in annotation_files_dict:
             try:
+                # Save CSV in same folder as .eannot input
+                csv_output_path = os.path.join(os.path.dirname(annotation_files_dict[edf_filename]), f"{edf_filename}.csv")
+
                 raw_data = get_Raw(edf_path)
-                annotations = get_annotation(annotation_files_dict[edf_filename], edf_filename + ".csv")
+                annotations = get_annotation(annotation_files_dict[edf_filename], csv_output_path)
                 events = data_preprocess(raw_data, annotations, chunk_duration)
                 epochs = get_epochs(raw_data, events, max_time)
 
@@ -118,9 +120,7 @@ def generate_npy(data_dirs, output_dir, chunk_duration, max_time):
     return edf_files
 
 
-
-
-
+# Example usage
 data_dirs = [
     r"/vol/research/baladat1/data/mnc/cnc",
     r"/vol/research/baladat1/data/mnc/dhc/training",
@@ -129,5 +129,5 @@ data_dirs = [
     r"/vol/research/baladat1/data/mnc/dhc/test/nc-nh"
 ]
 output_dir = r"/vol/research/baladat1/narcolepsy_ai/ho00322_lab/5sec_npys"
-edf_files = generate_npy(data_dirs, output_dir,chunk_duration=5, max_time=5.0)
+edf_files = generate_npy(data_dirs, output_dir, chunk_duration=5, max_time=5.0)
 
