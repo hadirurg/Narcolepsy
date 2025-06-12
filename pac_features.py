@@ -9,7 +9,7 @@ from tensorpac.signals import pac_signals_tort
 import pickle
 
 # %%
-pac_object = Pac(idpac=(2, 0, 4), f_pha=(0.5, 20, 1, 0.5), f_amp=(20, 40, 5, 1)) 
+
 
 def extract_PAC_features(subject_id, epoch_id, epoch, stage, label, sf , pac_object):
     print(epoch.get_data().shape)
@@ -19,6 +19,7 @@ def extract_PAC_features(subject_id, epoch_id, epoch, stage, label, sf , pac_obj
     all_pac = []
     all_pac.append({
                 'subject ID': subject_id,
+                'epoch ID': epoch_id,
                 'sleep stage': stage,
                 'features': xpac,
                 'diagnose': label
@@ -30,14 +31,21 @@ def save_to_pickle(data, filename):
         pickle.dump(data, file)
     
 
-
 # %%
-def get_pac_features(folder, output_features):
+def get_pac_features(folder, output_features, pac_object):
     os.makedirs(output_features, exist_ok=True)
     all_epochs = []
 
     for file in os.listdir(folder):
         if file.endswith(".npy"):
+            subject_id = os.path.splitext(file)[0].split("_")[0]
+            pac_features_path = os.path.join(output_features, f"pac_features_{subject_id}.pkl")
+
+            if os.path.exists(pac_features_path):
+                print(f"Skipped (already processed): {subject_id}")
+                return
+
+            print(f"Processing: {file}") 
             data = np.load(os.path.join(folder, file), allow_pickle=True)
 
             for epoch in data:
@@ -58,6 +66,12 @@ def get_pac_features(folder, output_features):
                 pac_data = extract_PAC_features(subject_id, epoch_id, epochs, sleep_stage, label,  sfreq , pac_object)
                 all_epochs += pac_data
 
-            save_to_pickle(all_epochs, f"{output_features}/ratios_features_{subject_id}.pkl")
+            save_to_pickle(all_epochs, pac_features_path)
+
+pac_object = Pac(idpac=(2, 0, 4), f_pha=(0.5, 20, 1, 0.5), f_amp=(20, 40, 5, 1)) 
+npy_30sec_files = r"/vol/research/baladat1/narcolepsy_ai/ho00322_lab/30sec_npys"
+output_pac = r"/vol/research/baladat1/narcolepsy_ai/ho00322_lab/pac_features"
+
+get_pac_features(npy_30sec_files, output_pac, pac_object)
 
 
