@@ -12,6 +12,8 @@ from scipy.signal import convolve
 from matplotlib.colors import ListedColormap
 import pickle
 from mne.time_frequency import psd_array_multitaper
+import mne
+mne.set_log_level('WARNING')
 
 # %%
 def compute_frequency_ratios(subject_id, epoch_id, epochs, stages, label):
@@ -71,11 +73,19 @@ def save_to_pickle(data, filename):
 # %%
 def get_ratios_features(folder, output_features):
     os.makedirs(output_features, exist_ok=True)
-    all_epochs = []
 
     for file in os.listdir(folder):
         if file.endswith(".npy"):
             
+            subject_id = os.path.splitext(file)[0].split("_")[0]
+            output_path = os.path.join(output_features, f"ratios_features_{subject_id}.pkl")
+            if os.path.exists(output_path):
+                print(f"Skipped (already processed): {subject_id}")
+                continue
+                
+            print(f"Processing: {file}") 
+            
+            all_epochs = []
             data = np.load(os.path.join(folder, file), allow_pickle=True)
 
             for epoch in data:
@@ -96,9 +106,11 @@ def get_ratios_features(folder, output_features):
                 ratios_data = compute_frequency_ratios(subject_id, epoch_id, epochs, sleep_stage, label)
                 all_epochs += ratios_data
 
-            save_to_pickle(all_epochs, f"{output_features}/ratios_features_{subject_id}.pkl")
-    
+            save_to_pickle(all_epochs, output_path)
 
+npy_5sec_files = r"/vol/research/baladat1/narcolepsy_ai/ho00322_lab/5sec_npys"
+output_specteral = r"/vol/research/baladat1/narcolepsy_ai/ho00322_lab/specteral_features"
+get_ratios_features(npy_5sec_files, output_specteral) 
 
 # %%
 
