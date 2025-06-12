@@ -113,6 +113,18 @@ output_specteral = r"/vol/research/baladat1/narcolepsy_ai/ho00322_lab/specteral_
 get_ratios_features(npy_5sec_files, output_specteral) 
 
 # %%
+import numpy as np
+import matplotlib.pyplot as plt
+
+folder = r"S:\Research\baladat1\narcolepsy_ai\ho00322_lab\specteral_features"
+all_data = []
+for file in os.listdir(folder):
+    if file.endswith(".pkl"):
+        file_path = os.path.join(folder, file)
+        with open(file_path, "rb") as f:
+            data = pickle.load(f)
+            all_data.extend(data)  
+df = pd.DataFrame(all_data)
 
 def smooth(data, window_len=50):
     if window_len < 3:
@@ -127,28 +139,21 @@ def oplot2d_50(ax, ratio1, ratio2, A, label, subject_id):
     sratio2 = smooth(ratio2, window_len=50)
     color_mapping = {1: 'red', 2: 'yellow', 3: 'green', 4: 'blue', 5: 'magenta'}
     colors = [color_mapping[stage] for stage in A]
-    
     scatter = ax.scatter(np.log(sratio1), np.log(sratio2), c=colors, s=6, alpha=0.2)
     ax.set_xlabel('log(ratio1)')
     ax.set_ylabel('log(ratio2)')
-    
     label_mapping = {0: 'Narcolepsy Patient', 1: 'Healthy Control', 2: 'Other Hypersomnia'}
     ax.set_title(f'Subject: {subject_id},\n {label_mapping[label]}', fontsize=10)
-    
     return scatter
 
 def plot_subjects_ratios(df, oplot2d_func, nrows=5, ncols=5, max_figures_per_label=20):
-    
     subject_ids = df['subject ID'].unique()
     fig, axs = plt.subplots(nrows, ncols, figsize=(15, nrows * 3))
-
     label_counts = {0: 0, 1: 0, 2: 0}
     plot_index = 0
-
     for subject_id in subject_ids:
         subject_df = df[df['subject ID'] == subject_id]
         label = subject_df['diagnose'].iloc[0]
-
         if label_counts[label] < max_figures_per_label:
             A = subject_df['sleep stage'].values.tolist()
             ratio1 = subject_df['ratio1'].values
@@ -157,7 +162,6 @@ def plot_subjects_ratios(df, oplot2d_func, nrows=5, ncols=5, max_figures_per_lab
             oplot2d_func(ax, ratio1, ratio2, A, label, subject_id)
             label_counts[label] += 1
             plot_index += 1
-
         if plot_index >= nrows * ncols:
             break
 
@@ -167,6 +171,8 @@ def plot_subjects_ratios(df, oplot2d_func, nrows=5, ncols=5, max_figures_per_lab
     fig.legend(handles, stage_labels, loc='lower center', ncol=5, fontsize=10)
     plt.tight_layout(rect=[0, 0.05, 1, 1])
     plt.show()
+
+plot_subjects_ratios(df, oplot2d_50, nrows=5, ncols=5, max_figures_per_label=20)
 
 
 
