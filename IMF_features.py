@@ -32,10 +32,10 @@ def get_IMF_features(folder, output_features, output_imfs, num_imfs, ensemble_si
             if len(data) == 0:
                 continue
 
+            #incase file exists
             subject_id = data[0]["subject_id"]
             features_path = os.path.join(output_features, f"features_{subject_id}.pkl")
             imfs_path = os.path.join(output_imfs, f"imfs_{subject_id}.pkl")
-
             if os.path.exists(features_path) and os.path.exists(imfs_path):
                 print(f"Skipped (already processed): {subject_id}")
                 continue
